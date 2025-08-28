@@ -334,3 +334,4 @@ MIT License - see LICENSE file for details.
 ## Disclaimer
 
 This tool is provided as-is for educational and security research purposes. While it aims to detect security issues in PKGBUILDs, it cannot guarantee complete protection against all threats. Users should exercise their own judgment and conduct additional security reviews when necessary.# plsaicheckyay
+# plsaicheckyay
