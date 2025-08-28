@@ -1,6 +1,6 @@
 # plsaicheckyay
 
-==WARNING: Vibe coded with Code Claude==
+**WARNING: Vibe coded with Code Claude. I'm not a developer**
 
 A secure wrapper for yay (Arch User Repository Helper) that uses AI to analyze PKGBUILDs before installation, helping detect potential security risks, malware, and suspicious code.
 
