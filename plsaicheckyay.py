@@ -1553,9 +1553,9 @@ def main():
     
     # AI Configuration
     parser.add_argument("--ai-provider", choices=["ollama", "openai", "openrouter"],
-                       default="ollama", help="AI Provider to use")
+                       help="AI Provider to use")
     parser.add_argument("--ai-model", help="Specific AI model")
-    parser.add_argument("--ai-host", default="http://localhost:11434",
+    parser.add_argument("--ai-host", 
                        help="OLLAMA host")
     parser.add_argument("--api-key", help="API key for OpenAI/OpenRouter")
     
@@ -1588,6 +1588,9 @@ def main():
     
     args = parser.parse_args()
     
+    # Load configuration
+    from config import config
+    
     # Set SearXNG URL if provided
     if args.searxng_url:
         os.environ["SEARXNG_URL"] = args.searxng_url
@@ -1598,23 +1601,27 @@ def main():
         searxng_url = args.searxng_url or os.getenv("SEARXNG_URL", "https://searxng.lan/")
         web_search_provider = SearXNGSearchProvider(searxng_url)
     
-    # Configure AI provider
-    if args.ai_provider == "ollama":
+    # Configure AI provider - use config default if not specified
+    ai_provider_name = args.ai_provider or config.get("ai_provider", "ollama")
+    
+    if ai_provider_name == "ollama":
         ai_provider = OllamaProvider(
-            model=args.ai_model or "llama3.1",
-            host=args.ai_host,
+            model=args.ai_model or config.get("ollama.model", "llama3.1"),
+            host=args.ai_host or config.get("ollama.host", "http://localhost:11434"),
             web_search_provider=web_search_provider
         )
-    elif args.ai_provider == "openai":
-        if not args.api_key:
-            print("❌ API key richiesta per OpenAI")
+    elif ai_provider_name == "openai":
+        api_key = args.api_key or config.get_api_key("openai")
+        if not api_key:
+            print("❌ API key required for OpenAI")
             return 1
-        ai_provider = OpenAIProvider(args.api_key, args.ai_model or "gpt-4", web_search_provider)
-    elif args.ai_provider == "openrouter":
-        if not args.api_key:
-            print("❌ API key richiesta per OpenRouter")
+        ai_provider = OpenAIProvider(api_key, args.ai_model or config.get("openai.model", "gpt-4"), web_search_provider)
+    elif ai_provider_name == "openrouter":
+        api_key = args.api_key or config.get_api_key("openrouter")
+        if not api_key:
+            print("❌ API key required for OpenRouter")
             return 1
-        ai_provider = OpenRouterProvider(args.api_key, args.ai_model, web_search_provider)
+        ai_provider = OpenRouterProvider(api_key, args.ai_model or config.get("openrouter.model", "anthropic/claude-3.5-sonnet"), web_search_provider)
     
     wrapper = YayWrapper(ai_provider)
     
